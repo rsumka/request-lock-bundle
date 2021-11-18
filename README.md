@@ -16,7 +16,10 @@ To mark requests as identical the bundle compares request headers, url, method a
 
 GET requests will be ignored.
 
-## Configuration
+## Installation ##
+Run `composer require rsumka/request-lock-bundle`
+
+## Configuration ##
 By default the bundle won't ignore any headers and will use `wait_for_lock_release_strategy`. After installing bundle you can create configuration file `request_lock.yaml` in config/packages with:
 ```yaml
 request_lock:
