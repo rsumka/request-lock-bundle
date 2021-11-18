@@ -1,6 +1,8 @@
 {
   "name": "rsumka/request-lock-bundle",
-  "description": "",
+  "description": "Symfony bundle for handling duplicate requests",
+  "keywords": ["symfony", "bundle"],
+  "homepage": "https://github.com/rsumka/request-lock-bundle",
   "type": "symfony-bundle",
   "require": {
     "php": ">=7.4",
