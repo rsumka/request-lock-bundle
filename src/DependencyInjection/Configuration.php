@@ -16,11 +16,12 @@ class Configuration implements ConfigurationInterface
         $treeBuilder->getRootNode()
             ->children()
                 ->scalarNode('request_duplicate_handling_strategy')
+                    ->cannotBeEmpty()
                     ->defaultValue(WaitForLockReleaseStrategy::getName())
-                    ->end()
+                ->end()
                 ->arrayNode('ignored_headers')
                     ->defaultNull()
-                    ->end()
+                ->end()
             ->end()
         ;
 
