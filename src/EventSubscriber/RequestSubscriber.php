@@ -7,18 +7,20 @@ use Rsumka\RequestLockBundle\RequestDuplicate\RequestDuplicateHandlingStrategyPr
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
+use Symfony\Component\Lock\Lock;
 use Symfony\Component\Lock\LockFactory;
 
 class RequestSubscriber implements EventSubscriberInterface
 {
     private LockFactory $lockFactory;
     private RequestDuplicateHandlingStrategyProvider $strategyProvider;
-    private ?array $ignoredHeaders;
+    private array $ignoredHeaders;
+    private Lock $lock;
 
     public function __construct(
         LockFactory $lockFactory,
         RequestDuplicateHandlingStrategyProvider $strategyProvider,
-        ?array $ignoredHeaders = null
+        array $ignoredHeaders = []
     ) {
         $this->lockFactory = $lockFactory;
         $this->strategyProvider = $strategyProvider;
@@ -28,7 +30,8 @@ class RequestSubscriber implements EventSubscriberInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            KernelEvents::REQUEST => 'onRequest'
+            KernelEvents::REQUEST => 'onRequest',
+            KernelEvents::TERMINATE => 'onTerminate'
         ];
     }
 
@@ -40,7 +43,7 @@ class RequestSubscriber implements EventSubscriberInterface
             return;
         }
 
-        if (is_array($this->ignoredHeaders) && count($this->ignoredHeaders) > 0) {
+        if (count($this->ignoredHeaders) > 0) {
             foreach ($this->ignoredHeaders as $header) {
                 $request->headers->remove($header);
             }
@@ -48,10 +51,15 @@ class RequestSubscriber implements EventSubscriberInterface
 
         $key = md5($request->__toString());
 
-        $lock = $this->lockFactory->createLock($key);
-        if (!$lock->acquire()) {
+        $this->lock = $this->lockFactory->createLock($key);
+        if (!$this->lock->acquire()) {
             $requestDuplicateHandlingStrategy = $this->strategyProvider->getStrategyFromConfiguration();
-            $requestDuplicateHandlingStrategy->handle($request, $lock);
+            $requestDuplicateHandlingStrategy->handle($request, $this->lock);
         }
+    }
+
+    public function onTerminate(): void
+    {
+        $this->lock->release();
     }
 }

@@ -20,7 +20,9 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue(WaitForLockReleaseStrategy::getName())
                 ->end()
                 ->arrayNode('ignored_headers')
-                    ->defaultNull()
+                    ->prototype('scalar')->end()
+                    ->defaultValue([])
+                    ->cannotBeEmpty()
                 ->end()
             ->end()
         ;

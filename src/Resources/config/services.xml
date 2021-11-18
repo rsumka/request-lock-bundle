@@ -9,14 +9,24 @@
                  class="Rsumka\RequestLockBundle\RequestDuplicate\RequestDuplicateHandlingStrategyProvider"
                  public="true"
                  autowire="true"
-        />
+        >
+            <argument />
+        </service>
 
         <service id="rsumka.request_lock.request_subscriber"
                  class="Rsumka\RequestLockBundle\EventSubscriber\RequestSubscriber"
                  public="true"
         >
-            <argument id="Symfony\Component\Lock\LockFactory"/>
-            <argument id="rsumka.request_lock.strategy_provider"/>
+            <argument type="service" id="Symfony\Component\Lock\LockFactory"/>
+            <argument type="service" id="rsumka.request_lock.strategy_provider"/>
+            <argument />
+            <tag name="kernel.event_subscriber" />
+        </service>
+        <service id="Rsumka\RequestLockBundle\RequestDuplicate\WaitForLockReleaseStrategy">
+            <tag name="rsumka.request_duplicate.strategy"/>
+        </service>
+        <service id="Rsumka\RequestLockBundle\RequestDuplicate\ThrowExceptionStrategy">
+            <tag name="rsumka.request_duplicate.strategy"/>
         </service>
     </services>
 </container>
