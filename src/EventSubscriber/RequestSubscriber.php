@@ -15,7 +15,7 @@ class RequestSubscriber implements EventSubscriberInterface
     private LockFactory $lockFactory;
     private RequestDuplicateHandlingStrategyProvider $strategyProvider;
     private array $ignoredHeaders;
-    private Lock $lock;
+    private ?Lock $lock = null;
 
     public function __construct(
         LockFactory $lockFactory,
@@ -60,6 +60,8 @@ class RequestSubscriber implements EventSubscriberInterface
 
     public function onTerminate(): void
     {
-        $this->lock->release();
+        if ($this->lock !== null) {
+            $this->lock->release();
+        }
     }
 }
